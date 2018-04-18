@@ -14,6 +14,7 @@ typedef struct node{
 typedef struct {
 	Node *head;
 	Node *tail;
+	pthread_mutex_t *mutex;
 } MQueue;
 
 void send_msg( MQueue *s, int value ); // enqueue
