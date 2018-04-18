@@ -1,0 +1,8 @@
+version "0.0.1"
+package "One time pad"
+purpose "CS2002 Parctical5"
+
+# Options
+option "input_filename" i "The file containing the message to be encrypted" optional string default="stdin"
+option "output_filename" o "The file where the encrypted message should be output" optional string default="stdout"
+option "keyfile" k "The path to the keyfile that contains the encryption key. The key must be at least as long as the message" required string
