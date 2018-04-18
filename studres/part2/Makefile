@@ -7,4 +7,4 @@ clean:
 	rm -f *.o mq_test
 
 mq_test: mq_test.c msg_queue.c
-	${CC} ${FLAGS} mq_test.c msg_queue.c -o mq_test
+	${CC} ${FLAGS} mq_test.c mq_safe_test.c msg_queue.c -o mq_test
