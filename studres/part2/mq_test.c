@@ -14,7 +14,10 @@ int main( void ) {
   initMQueue(queue);
 
   // Test for deadlocks with 100 threads
-	test_deadlocks_starvation(queue, n_thread);
+	test_deadlocks_starvation_1(queue, n_thread);
+
+  // Test for race conditions
+  test_race_conditions_1(queue);
 
   return 0;
 }

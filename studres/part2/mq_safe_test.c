@@ -13,11 +13,20 @@ unsigned int n_thread;
 /* Push multiple items to the queue */
 void * push_100(void* arg)
 {
-  srand(time(NULL));
   for (int i = 0; i < 100; i++){
-	 send_msg(arg, rand()) ;
+	 send_msg(arg, i) ;
  }
  return NULL;
+}
+
+int queue_length(MQueue* queue) {
+  int n = 0;
+  Node* tmp = queue->head;
+  while (tmp != NULL) {
+    n++;
+    tmp = tmp->next;
+  }
+  return n;
 }
 
 /* Pop multiple items from the queue */
@@ -25,6 +34,7 @@ void * pop_50(void* arg)
 {
   for (int i = 0; i < 50; i++) {
 	 read_msg(arg) ;
+
  }
  return NULL;
 }
@@ -44,7 +54,10 @@ void inc_count(Counter* counter) {
 }
 
 /* Test for deadlocks in the queue */
-void test_deadlocks_starvation(MQueue* queue, unsigned int n_thread) {
+void test_deadlocks_starvation_1(MQueue* queue, unsigned int n_thread) {
+
+  /* Reset queue */
+  initMQueue(queue);
 
   if (n_thread % 2 != 0 ) n_thread += 1;
 
@@ -58,19 +71,41 @@ void test_deadlocks_starvation(MQueue* queue, unsigned int n_thread) {
                                                               /*     pop_n         */
   }
 
-  puts("test_deadlocks: passed");
-
   /* Test starvation */
 
   int starvation = 0; // starvation is false initially
 
   for (unsigned int i = 1; i <= n_thread; i++)
-    starvation = starvation &&
+    starvation = starvation ||
       (pthread_join(threads[i], NULL) != 0) ;                  /*  4. Wait for all child threads to complete
                                                                     If any threads are unable to complete,
                                                                     i.e starvation, pthread_join will not return
                                                                     0
-                                                              */
-  if (starvation) puts("test_starvation: failed");
-  else puts("test_starvation: passed");
+
+                                                                  */
+  if (starvation) puts("test_starvation_deadlocks_1: FAIL");
+  else puts("test_starvation_deadlocks_1: PASS");
+}
+
+/* To test for race conditions there are several ways, including the test below:
+
+1. push 100 from two threads simultaneously, and check length is 200
+
+*/
+
+void test_race_conditions_1(MQueue* queue) {
+
+  /* Reset queue */
+  initMQueue(queue);
+
+  pthread_t threads[2];
+  pthread_create(&threads[0], NULL, push_100, queue);
+  pthread_join(threads[0], NULL);                                                            /*     push_n        */
+  pthread_create(&threads[1], NULL, push_100, queue);
+  pthread_join(threads[1], NULL);  
+
+
+  if (queue_length(queue) == 200) puts("test_race_conditions_1: PASS");
+  else puts("test_race_conditions_1: FAIL");
+
 }
